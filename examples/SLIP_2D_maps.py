@@ -17,11 +17,11 @@ from numpy.linalg import eigvals, det, norm
 
 k = 10.
 g = 0.345
-beta = 2*math.pi/5  # initial value only
-pars = {'k': k, 'g': g, 'beta': beta}
+BETA = 2*math.pi/5  # initial value only
+pars = {'k': k, 'g': g, 'BETA': BETA}
 
-z_ic = sin(beta)
-y_ic = cos(beta)
+z_ic = sin(BETA)
+y_ic = cos(BETA)
 info(pars, "Parameter values")
 icdict = {'y': y_ic, 'z': z_ic, 'ydot': 0.8, 'zdot': .3, 'incontact': 0}
 print("\n")
@@ -42,10 +42,10 @@ def pdc_map(ic):
     return res[list(icdict.keys())]
 
 
-# Find fixed point of gait map parameterized by beta,
+# Find fixed point of gait map parameterized by BETA,
 # for periodic gait
 def fp_beta_fsolve(b, x0):
-    SLIP_map.set(pars={'beta': b[0]})
+    SLIP_map.set(pars={'BETA': b[0]})
     x0['z'] = math.sin(b[0])
     x0['y'] = math.cos(b[0])
     if x0['y'] <= 0 or x0['z'] <= 0:
@@ -60,7 +60,7 @@ def fp_beta_fsolve(b, x0):
 
 
 def fp_beta_newton(b, x0):
-    SLIP_map.set(pars={'beta': b})
+    SLIP_map.set(pars={'BETA': b})
     x0['z'] = math.sin(b)
     x0['y'] = math.cos(b)
     x1 = pdc_map(x0)
@@ -69,22 +69,22 @@ def fp_beta_newton(b, x0):
 
 icdict_pert = copy(icdict)
 icpt = Point({'coorddict': icdict_pert})
-print("\nFinding fixed point of periodic map as a function of beta")
+print("\nFinding fixed point of periodic map as a function of BETA")
 
 # Equally efficient alternatives to shoot for f.p. solution
-beta_pdc = minpack.fsolve(fp_beta_fsolve, beta, args=(icpt,), xtol=1e-4)
-##beta_pdc = minpack.newton(fp_beta_newton, beta, args=(icpt,), tol=1e-4)
-beta_pdc_known = 1.21482619378
-print("beta_pdc = ", beta_pdc)
-assert abs(beta_pdc-beta_pdc_known)<1e-4, "beta_pdc was not found accurately"
+BETA_pdc = minpack.fsolve(fp_beta_fsolve, BETA, args=(icpt,), xtol=1e-4)
+##BETA_pdc = minpack.newton(fp_beta_newton, BETA, args=(icpt,), tol=1e-4)
+BETA_pdc_known = 1.21482619378
+print("BETA_pdc = ", BETA_pdc)
+assert abs(BETA_pdc-BETA_pdc_known)<1e-4, "BETA_pdc was not found accurately"
 
-# update i.c. for new beta
-icdict_pert['z'] = math.sin(beta_pdc)
-icdict_pert['y'] = math.cos(beta_pdc)
+# update i.c. for new BETA
+icdict_pert['z'] = math.sin(BETA_pdc)
+icdict_pert['y'] = math.cos(BETA_pdc)
 icdict_maps = copy(icdict_pert)
 icpt = Point({'coorddict': icdict_maps})
 print("\nCalculating approximation to periodic maps")
-SLIP_map.set(pars={'beta': beta_pdc})
+SLIP_map.set(pars={'BETA': BETA_pdc})
 states = [icpt]
 for i in range(5):
     states.append(pdc_map(states[-1]))
@@ -93,7 +93,7 @@ pdcgaittraj = pointsToPointset(states, 'n', list(range(len(states))))
 
 
 print("\nCalculating approximation to periodic trajectory")
-pars['beta'] = beta_pdc
+pars['BETA'] = BETA_pdc
 SLIP = makeSLIP2D_Vode(pars, dt=0.005)
 SLIP.compute(trajname='pdc',
              tdata=[0, 12],  # t=12 is not reached if event occurs
@@ -137,12 +137,12 @@ evals = eigvals(DP)
 print("\nDP's eigenvalues are ",evals)
 print("Max eigenvalue magnitude = ", max(abs(evals)))
 
-# verify beta = delta using the geometry
+# verify BETA = delta using the geometry
 tTD = SLIP.getTrajEventTimes('pdc')['touchdown'][0]  # time at first touchdown
 sTD = SLIP('pdc',tTD)  # system state at t=TD
 delta=math.atan(-sTD('ydot')/sTD('zdot'))  # angle of velocity vector from horizontal
-theta_qv=beta_pdc-delta
-print("Geometry shows that beta = delta, as theta_qv = beta-delta ...")
+theta_qv=BETA_pdc-delta
+print("Geometry shows that BETA = delta, as theta_qv = BETA-delta ...")
 print("theta_qv =", theta_qv)
 assert abs(theta_qv-0.0028)<1e-4, "theta_qv not found accurately"
 
@@ -150,7 +150,7 @@ assert abs(theta_qv-0.0028)<1e-4, "theta_qv not found accurately"
 vmag_TD = math.sqrt(sum(SLIP('pdc',tTD,['ydot','zdot'])**2)) # vel magnitude
 tLO = SLIP.getTrajEventTimes('pdc')['liftoff'][1]
 vmag_LO = math.sqrt(sum(SLIP('pdc',tLO,['ydot','zdot'])**2))
-vmag_LOtheory = math.sqrt(vmag_TD**2+2*g*(sin(beta_pdc)-SLIP('pdc',tLO,'z')))
+vmag_LOtheory = math.sqrt(vmag_TD**2+2*g*(sin(BETA_pdc)-SLIP('pdc',tLO,'z')))
 
 assert abs(vmag_LOtheory - vmag_LO) < 1e-6, "vmag value doesn't match prediction"
 

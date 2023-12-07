@@ -16,13 +16,13 @@ from copy import copy, deepcopy
 
 k = 10.
 g = 0.345
-beta = 2*math.pi/5
-##beta = 1.25305395342
+BETA = 2*math.pi/5
+##BETA = 1.25305395342
 
-pars = {'k': k, 'g': g, 'beta': beta}
+pars = {'k': k, 'g': g, 'BETA': BETA}
 info(pars, "Parameter values")
 
-z_ic = sin(beta)
+z_ic = sin(BETA)
 y_ic = math.sqrt(1-z_ic*z_ic)
 ics = {'y': y_ic, 'z': z_ic, 'ydot': .6, 'zdot': .3}
 info(ics, "Initial conditions")
@@ -36,16 +36,16 @@ SLIP.set(verboselevel=0)
 
 # ---- Find periodic gait -----------------------------------------
 
-# residual fn for searching in beta
+# residual fn for searching in BETA
 def residual_fn_beta(x):
     ics['incontact'] = 0
-    print("Trying beta =", x[0])
+    print("Trying BETA =", x[0])
     try:
-        SLIP.compute(pars={'beta': x[0]}, force=True,
+        SLIP.compute(pars={'BETA': x[0]}, force=True,
                          trajname='par_est', tdata=[0, 12],
                          ics=ics)
     except PyDSTool_ExistError:
-        # beta chosen such that no eligible generators found
+        # BETA chosen such that no eligible generators found
         print(" ... arbitrarily setting cost to be 1000")
         return 1000
     # time of touchdown and liftoff
@@ -61,16 +61,16 @@ def residual_fn_beta(x):
         print("z3=",z3)
         delta = math.asin(z3)
         print("delta =",delta)
-        # Dpsi = pi-beta-delta
-        # target Dpsi = pi-2*beta, i.e. beta=delta
-        cost = (beta-delta)**2
+        # Dpsi = pi-BETA-delta
+        # target Dpsi = pi-2*BETA, i.e. BETA=delta
+        cost = (BETA-delta)**2
         print("cost =", cost)
     else:
         raise RuntimeError("Not enough events found")
     return cost
 
 # use optimizer with boundary constraints
-##beta_opt = minpack.fsolve(residual_fn_beta, beta, xtol=Dpsi_tol)
+##BETA_opt = minpack.fsolve(residual_fn_beta, BETA, xtol=Dpsi_tol)
 
 # -----------------------------------------------------------------
 
@@ -99,9 +99,9 @@ def residual_fn_ydot(x):
 ##        print "z3=",z3
         delta = math.asin(z3)
 ##        print "delta =",delta
-        # Dpsi = pi-beta-delta
-        # target Dpsi = pi-2*beta, i.e. beta=delta
-        cost = (beta-delta)**2
+        # Dpsi = pi-BETA-delta
+        # target Dpsi = pi-2*BETA, i.e. BETA=delta
+        cost = (BETA-delta)**2
         print("cost =", cost)
     else:
         print(evs)

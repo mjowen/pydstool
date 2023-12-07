@@ -23,22 +23,22 @@ def getStanceArgs(grav_in_stance, algparams, liftoff_ev, pars, abseps):
     else:
         grav_str = ""
     return {'pars': pars,
-            'fnspecs': {'zeta': (['y', 'z'], 'sqrt(y*y+z*z)'),
+            'fnspecs': {'ZETA': (['y', 'z'], 'sqrt(y*y+z*z)'),
 ##                          initial conditions cannot be accessed in event
-##                          'yrel': (['v'], 'v-initcond(y)+cos(beta)')},
-                          'yrel': (['y','yic'], 'y-yic-cos(beta)')},
+##                          'yrel': (['v'], 'v-initcond(y)+cos(BETA)')},
+                          'yrel': (['y','yic'], 'y-yic-cos(BETA)')},
             'varspecs': {'y':    "ydot",
-                            'ydot': "k*(1/zeta(yrel(y,initcond(y)),z)-1)*yrel(y,initcond(y))",
+                            'ydot': "k*(1/ZETA(yrel(y,initcond(y)),z)-1)*yrel(y,initcond(y))",
                             'z':    "zdot",
-                            'zdot': "k*(1/zeta(yrel(y,initcond(y)),z)-1)*z"+grav_str,
-                            'zetaval': "zeta(yrel(y,initcond(y)),z)",
+                            'zdot': "k*(1/ZETA(yrel(y,initcond(y)),z)-1)*z"+grav_str,
+                            'ZETAval': "ZETA(yrel(y,initcond(y)),z)",
                             'incontact': "0"
                             },
-            'auxvars': ['zetaval'], #, 'incontact'],
-            'xdomain': {'y': [0, Inf], 'z': [0,Inf], 'zetaval': [0,1],
+            'auxvars': ['ZETAval'], #, 'incontact'],
+            'xdomain': {'y': [0, Inf], 'z': [0,Inf], 'ZETAval': [0,1],
                         'incontact': 1},
-            'pdomain': {'beta': [0.0, pi/2]},
-            'ics': {'zetaval': 1., 'incontact': 1},
+            'pdomain': {'BETA': [0.0, pi/2]},
+            'ics': {'ZETAval': 1., 'incontact': 1},
             'xtype': {'incontact': int},
             'algparams': algparams,
             'events': liftoff_ev,
@@ -48,18 +48,18 @@ def getStanceArgs(grav_in_stance, algparams, liftoff_ev, pars, abseps):
 
 def getFlightArgs(algparams, touchdown_ev, pars, abseps):
     return {'pars': pars,
-           #'fnspecs': {'zeta': (['y', 'z'], 'sqrt(y*y+z*z)')},
+           #'fnspecs': {'ZETA': (['y', 'z'], 'sqrt(y*y+z*z)')},
            'varspecs': {'y': "initcond(ydot)",
                            'ydot': "0",
                            'z':    "zdot",
                            'zdot': "-g",
-                           'zetaval': "1",
+                           'ZETAval': "1",
                            'incontact': "0"},
-           'auxvars': ['zetaval'], #, 'incontact'],
-           'xdomain': {'y': [0, Inf], 'z': [0,Inf], 'zetaval': 1,
+           'auxvars': ['ZETAval'], #, 'incontact'],
+           'xdomain': {'y': [0, Inf], 'z': [0,Inf], 'ZETAval': 1,
                        'incontact': 0},
-           'pdomain': {'beta': [0.0, pi/2]},
-           'ics': {'zetaval': 1., 'incontact': 0},
+           'pdomain': {'BETA': [0.0, pi/2]},
+           'ics': {'ZETAval': 1., 'incontact': 0},
            'xtype': {'incontact': int},
            'algparams': algparams,
            'events': touchdown_ev,
@@ -72,7 +72,7 @@ def makeInterface(DS, incontact):
     y_dummy = 0.3
     z_dummy = sqrt(1 - y_dummy*y_dummy)
     return intModelInterface(embed(DS,
-                                icdict={'zetaval': 1,
+                                icdict={'ZETAval': 1,
                                         'incontact':int(incontact),
                                         'y': y_dummy, 'z': z_dummy,
                                         'ydot': 0.6, 'zdot': 0.3},
@@ -132,7 +132,7 @@ def makeSLIPModel(stanceMI, flightMI, stop_at_TD, stop_at_LO):
 
     SLIP = Model.HybridModel({'name': 'SLIP', 'modelInfo': modelInfoDict})
     # promote aux vars from Generators to "vars" in the hybrid model
-    SLIP.forceIntVars(['zetaval']) #, 'incontact'])
+    SLIP.forceIntVars(['ZETAval']) #, 'incontact'])
     return SLIP
 
 
@@ -152,10 +152,10 @@ def makeDS_parts(pars, dt, abseps, grav_in_stance=True,
                'term': True,
                'precise': True,
                'name': 'liftoff'}
-    liftoff_ev = Events.makeZeroCrossEvent('zeta(yrel(y,initcond(y)),z)-1', 1,
-                          liftoff_args, ['y','z'], ['beta'],
-                          fnspecs={'zeta': (['y', 'z'], 'sqrt(y*y+z*z)'),
-                                     'yrel': (['y','yic'], 'y-yic-cos(beta)')},
+    liftoff_ev = Events.makeZeroCrossEvent('ZETA(yrel(y,initcond(y)),z)-1', 1,
+                          liftoff_args, ['y','z'], ['BETA'],
+                          fnspecs={'ZETA': (['y', 'z'], 'sqrt(y*y+z*z)'),
+                                     'yrel': (['y','yic'], 'y-yic-cos(BETA)')},
                           targetlang=targetlang)
 
     stance_args = getStanceArgs(grav_in_stance, algparams, liftoff_ev, pars,
@@ -168,8 +168,8 @@ def makeDS_parts(pars, dt, abseps, grav_in_stance=True,
                'term': True,
                'precise': True,
                'name': 'touchdown'}
-    touchdown_ev = Events.makeZeroCrossEvent('z-sin(beta)', -1, touchdown_args,
-                                             ['z'], ['beta'],
+    touchdown_ev = Events.makeZeroCrossEvent('z-sin(BETA)', -1, touchdown_args,
+                                             ['z'], ['BETA'],
                                              targetlang=targetlang)
 
     flight_args = getFlightArgs(algparams, touchdown_ev, pars, abseps)

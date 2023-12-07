@@ -45,8 +45,8 @@ def SLIP_plot(SLIP, trajname, plottype=['plane'], legs=True, verboselevel=0):
                 pt1 = SLIP(trajname,TDev)
                 y1 = pt1('y')
                 z1 = pt1('z')
-                beta = SLIP.query('pars')['beta']
-                y2 = y1+cos(beta)
+                BETA = SLIP.query('pars')['BETA']
+                y2 = y1+cos(BETA)
                 z2 = 0
                 plot([y1,y2],[z1,z2],'r-', linewidth=3)
                 if evix < numLOs:
@@ -56,5 +56,5 @@ def SLIP_plot(SLIP, trajname, plottype=['plane'], legs=True, verboselevel=0):
                     z3 = pt2('z')
                     if verboselevel > 0:
                         delta = math.asin(z3)
-                        print("|delta - beta| =", abs(delta - beta))
+                        print("|delta - BETA| =", abs(delta - BETA))
                     plot([y2,y3],[z2,z3],'r-',linewidth=3)
