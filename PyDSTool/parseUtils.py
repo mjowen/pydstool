@@ -2197,9 +2197,6 @@ def paren_contents(seq, lbr='(', rbr=')'):
      tree depth,
      seq index of opening paren,
      seq index of closing paren).
-
-    Works if lbr == rbr, e.g. for matching quote marks, when it's
-    expected that they will be only of depth 1.
     """
     past_outkeys = []
     key_stack = []

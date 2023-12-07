@@ -3,7 +3,8 @@
 from .allimports import *
 from PyDSTool.utils import *
 from PyDSTool.common import *
-from PyDSTool.Symbolic import ensureStrArgDict, Quantity, QuantSpec, mathNameMap
+from PyDSTool.Symbolic import ensureStrArgDict, Quantity, QuantSpec, \
+     mathNameMap, allmathnames
 from PyDSTool.Trajectory import Trajectory
 from PyDSTool.parseUtils import symbolMapClass, readArgs
 from PyDSTool.Variable import Variable, iscontinuous
@@ -11,7 +12,8 @@ from PyDSTool.Points import Pointset
 import PyDSTool.Events as Events
 
 # Other imports
-from numpy import Inf, NaN, isfinite, sometrue, alltrue
+from numpy import isfinite, sometrue, alltrue
+import numpy as np
 import math, random
 import os
 from copy import copy, deepcopy
@@ -262,7 +264,7 @@ class Generator(object):
         # the default map allows title-cased quantity objects like
         # Pow, Exp, etc. to be used in FuncSpec defs, but no need
         # to keep an inverse map of these below
-        self._FScompatibleNames = smap_mathnames
+        self._FScompatibleNames = deepcopy(smap_mathnames)
         if 'FScompatibleNames' in kw:
             sm = kw['FScompatibleNames']
             if sm is not None:
@@ -528,7 +530,7 @@ class Generator(object):
                                 "increasing size")
             self.foundKeys += 1
         else:
-            self.tdomain = [-Inf, Inf]
+            self.tdomain = [-np.Inf, np.Inf]
 
     def _kw_process_ttype(self, kw, fs_args):
         # e.g. for map system
@@ -583,15 +585,22 @@ class Generator(object):
         if 'inputs' in kw:
             inputs = copy(kw['inputs'])
             if isinstance(inputs, Trajectory):
+                for n in inputs.variables:
+                    if n in mathNameMap or n in allmathnames:
+                        raise ValueError("Input name {} clash with built-in math/scipy name".format(n))
                 # extract the variables
                 self.inputs.update(self._FScompatibleNames(inputs.variables))
             elif isinstance(inputs, Variable):
+                if inputs.name in mathNameMap or input.name in allmathnames:
+                    raise ValueError("Input name {} clash with built-in math/scipy name".format(n))
                 self.inputs.update({self._FScompatibleNames(inputs.name): \
                                     inputs})
             elif isinstance(inputs, Pointset):
                 # turn into Variables with linear interpoolation between
                 # independent variable values
                 for n in inputs.coordnames:
+                    if n in mathNameMap or n in allmathnames:
+                        raise ValueError("Input name {} clash with built-in math/scipy name".format(n))
                     x_array = inputs[n]
                     nFS = self._FScompatibleNames(n)
                     self.inputs[nFS] = \
@@ -601,6 +610,9 @@ class Generator(object):
                                                   abseps=self._abseps),
                                          name=n)  # keep original name here
             elif isinstance(inputs, dict):
+                for n in inputs.keys():
+                    if n in mathNameMap or n in allmathnames:
+                        raise ValueError("Input name {} clash with built-in math/scipy name".format(n))
                 self.inputs.update(self._FScompatibleNames(inputs))
                 # ensure values are Variables or Pointsets
                 for k, v in self.inputs.items():
@@ -633,14 +645,17 @@ class Generator(object):
                     raise ValueError("Missing varspec entries for declared ICs: " + str(unspecd))
             for name in remain(self.__all_vars,
                                self._xdatadict.keys()):
-                self.initialconditions[name] = NaN
+                self.initialconditions[name] = np.NaN
             self.foundKeys += 1
         else:
             self._xdatadict = {}
             for name in self.__all_vars:
-                self.initialconditions[name] = NaN
+                self.initialconditions[name] = np.NaN
 
     def _kw_process_allvars(self, kw, fs_args):
+        for varname in self.__all_vars:
+            if varname in mathNameMap or varname in allmathnames:
+                raise ValueError("Var name {} clash with built-in math/scipy name".format(varname))
         if 'auxvars' in kw:
             assert 'vars' not in kw, ("Cannot use both 'auxvars' and 'vars' "
                                       "keywords")
@@ -742,9 +757,9 @@ class Generator(object):
                     # pull out everything in parentheses
                     for_spec = fs_args['varspecs'][name][4:-1].replace(' ', '').split(',')
                     for name_i in range(int(for_spec[1]), int(for_spec[2])+1):
-                        self.xdomain[base+str(name_i)] = [-Inf, Inf]
+                        self.xdomain[base+str(name_i)] = [-np.Inf, np.Inf]
                 else:
-                    self.xdomain[name] = [-Inf, Inf]
+                    self.xdomain[name] = [-np.Inf, np.Inf]
             self.foundKeys += 1
         else:
             self.xdomain = {}
@@ -755,9 +770,9 @@ class Generator(object):
                     # pull out everything in parentheses
                     for_spec = fs_args['varspecs'][name][4:-1].replace(' ', '').split(',')
                     for name_i in range(int(for_spec[1]), int(for_spec[2])+1):
-                        self.xdomain[base+str(name_i)] = [-Inf, Inf]
+                        self.xdomain[base+str(name_i)] = [-np.Inf, np.Inf]
                 else:
-                    self.xdomain[name] = [-Inf, Inf]
+                    self.xdomain[name] = [-np.Inf, np.Inf]
 
     def _kw_process_reuseterms(self, kw, fs_args):
         if 'reuseterms' in kw:
@@ -782,13 +797,18 @@ class Generator(object):
             if isinstance(kw['pars'], list):
                 # may be a list of symbolic definitions
                 for p in kw['pars']:
+                    if p.name in mathNameMap or p.name in allmathnames:
+                        raise ValueError("Param name {} clash with built-in math/scipy name".format(p.name))
                     try:
                         self.pars[self._FScompatibleNames(p.name)] = p.tonumeric()
                     except (AttributeError, TypeError):
                         raise TypeError("Invalid parameter symbolic definition")
             else:
                 for k, v in dict(kw['pars']).items():
-                    self.pars[self._FScompatibleNames(str(k))] = ensurefloat(v)
+                    kstr = str(k)
+                    if kstr in mathNameMap or kstr in allmathnames:
+                        raise ValueError("Param name {} clash with built-in math/scipy name".format(k))
+                    self.pars[self._FScompatibleNames(kstr)] = ensurefloat(v)
             fs_args['pars'] = list(self.pars.keys())
             self._register(self.pars)
             self.foundKeys += 1
@@ -806,7 +826,7 @@ class Generator(object):
                     if not self._is_domain_ordered(self.pdomain[name][0], self.pdomain[name][1]):
                         raise PyDSTool_ValueError('pdomain values must be in order of increasing size')
                 for name in remain(self.pars.keys(), self.pdomain.keys()):
-                    self.pdomain[name] = [-Inf, Inf]
+                    self.pdomain[name] = [-np.Inf, np.Inf]
                 self.foundKeys += 1
             else:
                 raise ValueError('Cannot specify pdomain because no pars declared')
@@ -814,7 +834,7 @@ class Generator(object):
             if self.pars:
                 self.pdomain = {}
                 for pname in self.pars:
-                    self.pdomain[pname] = [-Inf, Inf]
+                    self.pdomain[pname] = [-np.Inf, np.Inf]
         if self.pars:
             self.parameterDomains = {}
             for pname in self.pdomain:
@@ -840,7 +860,11 @@ class Generator(object):
 
     def _kw_process_fnspecs(self, kw, fs_args):
         if 'fnspecs' in kw:
-            fs_args['fnspecs'] = ensureStrArgDict(kw['fnspecs'])
+            fnspec_dict = ensureStrArgDict(kw['fnspecs'])
+            for k, v in fnspec_dict.items():
+                if k in mathNameMap or k in allmathnames:
+                    raise ValueError("Aux function name {} clash with built-in math/scipy name".format(k))
+            fs_args['fnspecs'] = fnspec_dict
             self.foundKeys += 1
 
     def _kw_process_target(self, kw, fs_args):
