@@ -14,26 +14,26 @@
 
 from PyDSTool import *
 
-DSargs = args(fnspecs={'Jacobian': (['t','y0','y1','y2'],
-                                """[[-0.04,  1e4*y2       ,  1e4*y1 ],
-                                    [ 0.04, -1e4*y2-6e7*y1, -1e4*y1 ],
-                                    [ 0.0 ,  6e7*y1       ,  0.0    ]]"""),
-                        'ydot0': (['y0', 'y1', 'y2'], "-0.04*y0 + 1e4*y1*y2"),
-                        'ydot2': (['y0', 'y1', 'y2'], "3e7*y1*y1")}
+DSargs = args(fnspecs={'Jacobian': (['t','yy0','yy1','yy2'],
+                                """[[-0.04,  1e4*yy2       ,  1e4*yy1 ],
+                                    [ 0.04, -1e4*yy2-6e7*yy1, -1e4*yy1 ],
+                                    [ 0.0 ,  6e7*yy1       ,  0.0    ]]"""),
+                        'ydot0': (['yy0', 'yy1', 'yy2'], "-0.04*yy0 + 1e4*yy1*yy2"),
+                        'ydot2': (['yy0', 'yy1', 'yy2'], "3e7*yy1*yy1")}
               )
-DSargs.varspecs = {"y0": "ydot0(y0,y1,y2)",
-                      "y2": "ydot2(y0,y1,y2)",
-                      "y1": "-ydot0(y0,y1,y2)-ydot2(y0,y1,y2)"}
+DSargs.varspecs = {"yy0": "ydot0(yy0,yy1,yy2)",
+                      "yy2": "ydot2(yy0,yy1,yy2)",
+                      "yy1": "-ydot0(yy0,yy1,yy2)-ydot2(yy0,yy1,yy2)"}
 DSargs.tdomain = [0.,1e20]
-DSargs.ics = {'y0': 1.0, 'y1': 0., 'y2': 0.}
+DSargs.ics = {'yy0': 1.0, 'yy1': 0., 'yy2': 0.}
 DSargs.algparams = {'init_step':0.4, 'strictdt': True, 'stiff': True,
                     'rtol': 1e-4, 'atol': [1e-8,1e-14,1e-6]}
-DSargs.events = makeZeroCrossEvent('y0-0.001', -1, {'name': 'thresh_ev',
+DSargs.events = makeZeroCrossEvent('yy0-0.001', -1, {'name': 'thresh_ev',
                        'eventtol': 10,
                        'bisectlimit': 20,
                        'eventinterval': 500,
                        'eventdelay': 0,  #otherwise cannot catch event with only one step per run
-                       'term': False}, ['y0'])
+                       'term': False}, ['yy0'])
 DSargs.checklevel = 2
 DSargs.name = 'jactest'
 testODE = Vode_ODEsystem(DSargs)

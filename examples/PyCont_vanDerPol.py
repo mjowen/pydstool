@@ -19,7 +19,7 @@ def integrate(DS, t1=200, name='traj'):
 
 
 def create_system(sysname='vanderPol', eps=1.0):
-    pars = {'eps': eps, 'a': 0.5, 'y1': -0.708}
+    pars = {'eps': eps, 'a': 0.5, 'yy1': -0.708}
 
     icdict = {'x': pars['a'], 'y': pars['a'] - pars['a']*pars['a']*pars['a']/3}
 
@@ -134,7 +134,7 @@ def user_continuation(PyCont):
     PCargs.userfunc = cont_func
     PCargs.FuncTol = 1e-10
     PCargs.VarTol = 1e-10
-    PCargs.freepars = ['y1']
+    PCargs.freepars = ['yy1']
     PCargs.StepSize = 1e-2
     PCargs.MaxStepSize = 5e-2
     PCargs.MaxNumPoints = 50
@@ -148,7 +148,7 @@ def user_continuation(PyCont):
     PCargs.uservars = ['a']
     PCargs.userpars = PyCont.gensys.pars
     PCargs.userfunc = cont_func
-    PCargs.freepars = ['y1']
+    PCargs.freepars = ['yy1']
     PCargs.StepSize = 1e-2
     PCargs.MaxStepSize = 5e-2
     PCargs.MaxNumPoints = 40
@@ -208,7 +208,7 @@ def set_initpoint(DS, PyCont, name='RG13'):
     x0 = [DS.pars['a'], iy]
 
     # set up for initial backwards run
-    PyCont.gensys.pars['y1'] = iy
+    PyCont.gensys.pars['yy1'] = iy
     x = array([DS.pars['a']], float)
 
 ##    # x1
@@ -225,9 +225,9 @@ def cont_func(C, pt, pars):
     DS.pars['a'] = pt['a']
 
     if (('sgn' not in C._userdata) or C._userdata.sgn == -1):
-        x1 = {'x': -1.0, 'y': pars['y1']}
+        x1 = {'x': -1.0, 'y': pars['yy1']}
     else:
-        x1 = {'x': DS.pars['a'], 'y': pars['y1']}
+        x1 = {'x': DS.pars['a'], 'y': pars['yy1']}
 
     # BACKWARD
     DS.eventstruct['event_x_a'].dircode = 1
@@ -347,13 +347,13 @@ print('done!\n\n')
 
 ### Find starting point for UD2
 ### start from pt # 1 in case previous run ended with an MX point
-##x1 = {'x': -1.0, 'y':  C['UD1'].sol[1]['y1']}
+##x1 = {'x': -1.0, 'y':  C['UD1'].sol[1]['yy1']}
 ##C['UD1'].gensys.eventstruct['event_x_a'].dircode = 1
 ##tx1f = C['UD1'].gensys.compute('x1f', ics=x1)
 ##C['UD1'].gensys.eventstruct['event_x_a'].dircode = -1
-##y1 = C['UD1'].gensys.getEvents()['event_x_a']['y'][0]
+##yy1 = C['UD1'].gensys.getEvents()['event_x_a']['y'][0]
 
-##C['UD2'].initpoint = {'a': C['UD1'].sol[1]['a'], 'y1': y1}
+##C['UD2'].initpoint = {'a': C['UD1'].sol[1]['a'], 'yy1': yy1}
 
 ##print 'UD2: Integrating forward...'
 ##try:

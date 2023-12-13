@@ -10,25 +10,25 @@
 from PyDSTool import *
 
 # declarations of symbolic objects
-y0 = Var('y0')
-y1 = Var('y1')
-y2 = Var('y2')
+yy0 = Var('yy0')
+yy1 = Var('yy1')
+yy2 = Var('yy2')
 p = Par('p')
 t = Var('t')
 
 # definitions of right-hand sides for each variable, as functions of all variables
-ydot0 = Fun(-0.04*y0 + p*y1*y2, [y0, y1, y2], 'ydot0')
-ydot2 = Fun(3e7*y1*y1, [y0, y1, y2], 'ydot2')
-ydot1 = Fun(-ydot0(y0,y1,y2)-ydot2(y0,y1,y2), [y0, y1, y2], 'ydot1')
+ydot0 = Fun(-0.04*yy0 + p*yy1*yy2, [yy0, yy1, yy2], 'ydot0')
+ydot2 = Fun(3e7*yy1*yy1, [yy0, yy1, yy2], 'ydot2')
+ydot1 = Fun(-ydot0(yy0,yy1,yy2)-ydot2(yy0,yy1,yy2), [yy0, yy1, yy2], 'ydot1')
 
 # the whole vector field as one nonlinear multi-variate function: R^3 -> R^3
-F = Fun([ydot0(y0,y1,y2),ydot1(y0,y1,y2),ydot2(y0,y1,y2)], [y0,y1,y2], 'F')
+F = Fun([ydot0(yy0,yy1,yy2),ydot1(yy0,yy1,yy2),ydot2(yy0,yy1,yy2)], [yy0,yy1,yy2], 'F')
 
 # Diff is the symbolic derivative operator, and returns a QuantSpec object.
 # It must be named "Jacobian" for PyDSTool to recognize it as such.
-jac = Fun(Diff(F,[y0,y1,y2]), [t, y0, y1, y2], 'Jacobian')
-# This defines a function of arguments (t, y0, y1, y2) obtained by differentiating F in all three
-# variables, y0, y1, and y2.
+jac = Fun(Diff(F,[yy0,yy1,yy2]), [t, yy0, yy1, yy2], 'Jacobian')
+# This defines a function of arguments (t, yy0, yy1, yy2) obtained by differentiating F in all three
+# variables, yy0, yy1, and yy2.
 
 # The user could inspect this expression, jac, and make some simplifications
 # by hand, to help optimize the speed of its evaluation. Here, we'll
@@ -36,21 +36,21 @@ jac = Fun(Diff(F,[y0,y1,y2]), [t, y0, y1, y2], 'Jacobian')
 
 DSargs = args(name='jactest', checklevel=2)
 DSargs.fnspecs = [jac, ydot0, ydot2]
-DSargs.varspecs = {y0: ydot0(y0,y1,y2),
-                   y2: ydot2(y0,y1,y2),
-                   y1: -ydot0(y0,y1,y2)-ydot2(y0,y1,y2)}
+DSargs.varspecs = {yy0: ydot0(yy0,yy1,yy2),
+                   yy2: ydot2(yy0,yy1,yy2),
+                   yy1: -ydot0(yy0,yy1,yy2)-ydot2(yy0,yy1,yy2)}
 DSargs.tdomain = [0.,1e20]
 DSargs.pars = {p: 1e4}
-DSargs.ics = {y0: 1.0, y1: 0., y2: 0.}
+DSargs.ics = {yy0: 1.0, yy1: 0., yy2: 0.}
 DSargs.algparams = {'init_step':0.4, 'strictdt': True, 'stiff': True,
                     'rtol': 1e-4, 'atol': [1e-8,1e-14,1e-6]}
 
-DSargs.events = makeZeroCrossEvent(y0-0.001, -1, {'name': 'thresh_ev',
+DSargs.events = makeZeroCrossEvent(yy0-0.001, -1, {'name': 'thresh_ev',
                        'eventtol': 10,
                        'bisectlimit': 20,
                        'eventinterval': 500,
                        'eventdelay': 0,  #otherwise cannot catch event with only one step per run
-                       'term': True}, [y0])
+                       'term': True}, [yy0])
 testODE = Vode_ODEsystem(DSargs)
 
 print("Defined the following internal Python function for Jacobian:")
@@ -99,8 +99,8 @@ print("The values from a test integration performed with scipy_ode.py " \
 ## At t=40000000000.0  y=[ 5.63729748e-008  2.25491907e-013  9.99999944e-001]
 
 # check that we can set ICs and params using symbolic objects
-testODE.set(ics={y0: 1.25}, pars={p: 1e4+1},
+testODE.set(ics={yy0: 1.25}, pars={p: 1e4+1},
             tdata=[0,1], algparams={'init_step': 0.1})
 
 # and this way
-traj2 = testODE.compute('test2', ics={y1: 0.01})
+traj2 = testODE.compute('test2', ics={yy1: 0.01})

@@ -4,7 +4,7 @@
 from PyDSTool import *
 
 def create_system(sysname='vanderPol', eps=1.0):
-    pars = {'eps': eps, 'a': 0.5, 'y1': -0.708}
+    pars = {'eps': eps, 'a': 0.5, 'yy1': -0.708}
 
     icdict = {'x': pars['a'], 'y': pars['a'] - pars['a']*pars['a']*pars['a']/3}
 

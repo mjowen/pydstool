@@ -12,9 +12,9 @@ from scipy.io import *
 
 def make_finger_massmatrix(name, par_args, ic_args, evs=None, nobuild=False):
 
-    phi1ddot_str = convertPowers('l1*phi2dot*m2*l2*s2*phi1dot-b1*phi1dot+1/2*m1*g*l1*c1+1/2*m2*g*l2*c12+1/2*m3*g*l3*c123-k1*phi1+k1*phi1ref+m2*g*l1*c1+m3*g*l1*c1+m3*g*l2*c12+m3*l3*phi3dot*l2*phi1dot*s3+m3*l3*phi3dot*phi1dot*l1*s23+m3*l3*phi3dot*l2*phi2dot*s3+1/2*m3*l3*phi3dot^2*l1*s23+1/2*m3*l3*phi3dot^2*l2*s3+1/2*l1*phi2dot^2*m2*l2*s2+2*l1*phi2dot*m3*l2*phi1dot*s2+l1*phi2dot^2*m3*l2*s2+l1*phi2dot*m3*phi1dot*l3*s23+1/2*l1*phi2dot^2*m3*l3*s23+l1*phi2dot*m3*l3*phi3dot*s23')
-    phi2ddot_str = convertPowers('-b2*phi2dot-1/2*m2*l2*l1*s2*phi1dot^2-k2*phi2+k2*phi2ref+1/2*m2*g*l2*c12+1/2*m3*g*l3*c123+m3*g*l2*c12+m3*l3*phi3dot*l2*phi1dot*s3+m3*l3*phi3dot*l2*phi2dot*s3+1/2*m3*l3*phi3dot^2*l2*s3-m3*phi1dot^2*l1*l2*s2-1/2*m3*phi1dot^2*l1*l3*s23')
-    phi3ddot_str = convertPowers('-b3*phi3dot-m3*l3*l2*phi1dot*phi2dot*s3-1/2*m3*l3*l2*phi2dot^2*s3+1/2*m3*g*l3*c123-k3*phi3+k3*phi3ref-1/2*m3*phi1dot^2*l1*l3*s23-1/2*m3*l3*phi1dot^2*l2*s3')
+    phi1ddot_str = convertPowers('l1*phi2dot*m2*l2*s2*phi1dot-b1*phi1dot+1/2*m1*g*l1*c1+1/2*m2*g*l2*c12+1/2*m3*g*l3*c123-kk1*phi1+kk1*phi1ref+m2*g*l1*c1+m3*g*l1*c1+m3*g*l2*c12+m3*l3*phi3dot*l2*phi1dot*s3+m3*l3*phi3dot*phi1dot*l1*s23+m3*l3*phi3dot*l2*phi2dot*s3+1/2*m3*l3*phi3dot^2*l1*s23+1/2*m3*l3*phi3dot^2*l2*s3+1/2*l1*phi2dot^2*m2*l2*s2+2*l1*phi2dot*m3*l2*phi1dot*s2+l1*phi2dot^2*m3*l2*s2+l1*phi2dot*m3*phi1dot*l3*s23+1/2*l1*phi2dot^2*m3*l3*s23+l1*phi2dot*m3*l3*phi3dot*s23')
+    phi2ddot_str = convertPowers('-b2*phi2dot-1/2*m2*l2*l1*s2*phi1dot^2-kk2*phi2+kk2*phi2ref+1/2*m2*g*l2*c12+1/2*m3*g*l3*c123+m3*g*l2*c12+m3*l3*phi3dot*l2*phi1dot*s3+m3*l3*phi3dot*l2*phi2dot*s3+1/2*m3*l3*phi3dot^2*l2*s3-m3*phi1dot^2*l1*l2*s2-1/2*m3*phi1dot^2*l1*l3*s23')
+    phi3ddot_str = convertPowers('-b3*phi3dot-m3*l3*l2*phi1dot*phi2dot*s3-1/2*m3*l3*l2*phi2dot^2*s3+1/2*m3*g*l3*c123-kk3*phi3+kk3*phi3ref-1/2*m3*phi1dot^2*l1*l3*s23-1/2*m3*l3*phi1dot^2*l2*s3')
 
     auxdict = {}
     # var ordering will be phi1, phi1dot, phi2, phi2dot, phi3, phi3dot (alphabetical)
@@ -92,7 +92,7 @@ if __name__=='__main__':
     # k in Nm/rad, b in N m s / rad -- as reported by D. L. Jindrich et al.,
     # J. Biomech. 37 (2004) 1589-1596
     par_args = {'tau1': 0, 'tau2': 0, 'tau3': 0,  # these don't affect anything
-                'k1': 0.12, 'k2': 0.28, 'k3': 0.54,
+                'kk1': 0.12, 'kk2': 0.28, 'kk3': 0.54,
                 'b1': 0.9e-3,
                 'b2': 2.2e-3,
                 'b3': 3.1e-3,
