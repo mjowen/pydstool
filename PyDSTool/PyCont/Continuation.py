@@ -3384,6 +3384,13 @@ class LimitCycleCurve(Continuation):
                 iuz.extend(len(v)*[pind])
                 vuz.extend(v)
             nuzr = len(iuz)
+        
+        #Set bounds on parameter
+        if 'B' in self.StopAtPoints:
+            rl0, rl1 = self.gensys.pdomain[self.freepars[0]]
+        else:
+            rl0 = -Inf
+            rl1 = Inf
 
         self._autoMod.SetData(2,    # Problem type (ips)
                               ilp,    # No fold detection (ilp)
@@ -3405,6 +3412,8 @@ class LimitCycleCurve(Continuation):
                               direc*self.StepSize,
                               self.MinStepSize,
                               self.MaxStepSize,
+                              rl0,
+                              rl1,
                               self.NumSPOut,
                               self.DiagVerbosity,
                               self.freeparsdim + self.auxparsdim,    # len(freepars)

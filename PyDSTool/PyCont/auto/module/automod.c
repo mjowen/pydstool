@@ -38,7 +38,7 @@ int Initialize( void ) {
 /* Needs to set main data for auto computation and before call to SetInitPoint */
 int SetData(int ips, int ilp, int isw, int isp, int sjac, int sflow, int nsm, int nmx, int ndim, 
                   int ntst, int ncol, int iad, double epsl, double epsu, double epss, int itmx,
-                  int itnw, double ds, double dsmin, double dsmax, int npr, int iid,
+                  int itnw, double ds, double dsmin, double dsmax, double rl0, double rl1, int npr, int iid,
                   int nicp, int *icp, int nuzr, int *iuz, double *vuz) {
     int i;
 
@@ -63,6 +63,8 @@ int SetData(int ips, int ilp, int isw, int isp, int sjac, int sflow, int nsm, in
     gIData->rap.ds = ds;
     gIData->rap.dsmin = dsmin;
     gIData->rap.dsmax = dsmax;
+    gIData->rap.rl0 = rl0;
+    gIData->rap.rl1 = rl1;
     
     gIData->sjac = sjac;
     gIData->sflow = sflow;

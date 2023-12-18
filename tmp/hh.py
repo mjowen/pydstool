@@ -20,6 +20,7 @@ DSargs = args(name='hh')
 DSargs.pars = pars
 DSargs.varspecs = {'V': Vstr, 'm': mstr, 'h': hstr, 'n': nstr, 's': sstr}
 DSargs.ics = icdict
+DSargs.pdomain = {'gna': [100,140]}
 DSargs.tdata = [0,100]
 
 DS = Generator.Radau_ODEsystem(DSargs)
@@ -101,6 +102,7 @@ PCargs.VarTol = 1e-3
 PCargs.FuncTol = 1e-3
 PCargs.initcycle = cycle
 PCargs.LocBifPoints = 'all' #Helps with stability (lots of nearby LP and PD) - avoids MX termination points immediatly appearing and stopping continuation
+PCargs.StopAtPoints = 'B'
 PCargs.verbosity = 0
 P.newCurve(PCargs)
 

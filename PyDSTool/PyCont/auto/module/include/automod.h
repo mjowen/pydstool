@@ -10,7 +10,7 @@ int Initialize(void);
 
 int SetData(int ips, int ilp, int isw, int isp, int sjac, int sflow, int nsm, int nmx, int ndim, 
                   int ntst, int ncol, int iad, double epsl, double epsu, double epss, int itmx,
-                  int itnw, double ds, double dsmin, double dsmax, int npr, int iid,
+                  int itnw, double ds, double dsmin, double dsmax, double rl0, double rl1, int npr, int iid,
                   int nicp, int *icp, int nuzr, int *iuz, double *vuz);
                       
 int SetInitPoint(double *u, int npar, int *ipar, double *par, int *icp, int nups,
